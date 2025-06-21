@@ -1,18 +1,31 @@
-<form [formGroup]="signInForm" (ngSubmit)="handleSignIn()">
-    <div>
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" placeholder="Your email address">
-    </div>
-    <div>
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" placeholder="Your password">
-    </div>
+<div class="auth-container">
+    <h2>Git Digest</h2>
+    <p>Sign in to continue</p>
   
-    <button type="submit" [disabled]="signInForm.invalid">
-      Sign In
+    <form [formGroup]="signInForm" (ngSubmit)="handleSignIn()">
+      <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="Your email address">
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="Your password">
+      </div>
+  
+      <button type="submit" [disabled]="signInForm.invalid">
+        Sign In
+      </button>
+  
+      <button type="button" (click)="handleSignUp()" [disabled]="signInForm.invalid">
+        Sign Up
+      </button>
+    </form>
+  
+    <p>Or</p>
+  
+    <button (click)="handleGitHubSignIn()">
+      Sign In with GitHub
     </button>
   
-    <button type="button" (click)="handleSignUp()" [disabled]="signInForm.invalid">
-      Sign Up
-    </button>
-  </form>
+    <p *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
