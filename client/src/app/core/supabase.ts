@@ -1,8 +1,8 @@
 // src/app/core/supabase.ts
 
-import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router'; // 1. Import the Router
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, Signal, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
 import { environment } from '@env';
 
 @Injectable({
@@ -10,7 +10,16 @@ import { environment } from '@env';
 })
 export class SupabaseService {
   public readonly client: SupabaseClient;
-  private router = inject(Router); // 2. Inject the Router
+  private router = inject(Router);
+
+  // I'm creating a writable signal to hold the session state.
+  private readonly _session: WritableSignal<Session | null> = signal(null);
+
+  // I'm exposing a read-only version for components to use safely.
+  public readonly session: Signal<Session | null> = this._session.asReadonly();
+
+  // This computed signal will be true if the user is logged in.
+  public readonly isLoggedIn: Signal<boolean> = computed(() => !!this.session());
 
   constructor() {
     this.client = createClient(
@@ -18,14 +27,22 @@ export class SupabaseService {
       environment.supabaseKey
     );
 
-    // 3. This is our global listener for any authentication event.
     this.client.auth.onAuthStateChange((event, session) => {
-      // We only care about the SIGNED_IN event for this logic.
+      this._session.set(session); // Update the signal on any auth change.
+
       if (event === 'SIGNED_IN') {
-        console.log('SupabaseService: User signed in, navigating to dashboard.');
-        // When a user signs in (via any method), navigate them to the dashboard.
         this.router.navigate(['/dashboard']);
       }
+
+      if (event === 'SIGNED_OUT') {
+        this.router.navigate(['/']); // On sign out, go back to the login page.
+      }
     });
+  }
+
+  // This is our new sign-out method.
+  async signOut(): Promise<void> {
+    await this.client.auth.signOut();
+    // The onAuthStateChange listener will handle the navigation automatically.
   }
 }

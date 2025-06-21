@@ -1,1 +1,13 @@
-<router-outlet></router-outlet>
+@if (isLoggedIn()) {
+    <header class="main-header">
+      <div class="logo">Git Digest</div>
+      <div class="user-info">
+        <span>{{ session()?.user?.email }}</span>
+        <button (click)="handleLogout()">Logout</button>
+      </div>
+    </header>
+  }
+  
+  <main>
+    <router-outlet></router-outlet>
+  </main>
