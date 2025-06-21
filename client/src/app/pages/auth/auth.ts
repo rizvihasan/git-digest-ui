@@ -2,36 +2,68 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SupabaseService } from '../../core/supabase'; // I'm importing our service.
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  // I'm importing the modules my HTML template needs to function.
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './auth.html',
   styleUrl: './auth.scss'
 })
 export class AuthComponent {
-  // This is a modern way to inject Angular's FormBuilder tool.
   private formBuilder = inject(FormBuilder);
+  // I'm injecting the SupabaseService so I can use it.
+  private supabase = inject(SupabaseService);
 
   errorMessage = '';
 
-  // I'm defining my form structure here.
-  // It has two controls, 'email' and 'password', and both are required.
   signInForm = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
 
-  handleSignIn(): void {
-    // I will add the real sign-in logic here in the next step.
-    console.log('Form submitted!', this.signInForm.value);
-    this.errorMessage = 'Sign-in logic not yet implemented.';
+  // This is the updated sign-in logic.
+  async handleSignIn(): Promise<void> {
+    if (this.signInForm.invalid) return;
+    this.errorMessage = '';
+
+    try {
+      const email = this.signInForm.value.email as string;
+      const password = this.signInForm.value.password as string;
+
+      // I'm calling the Supabase client to sign in the user.
+      const { error } = await this.supabase.client.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        this.errorMessage = error.message;
+      } else {
+        // In a real app, I would navigate to the dashboard here.
+        // For now, an alert is fine for testing.
+        alert('Login successful! (Check console for user session)');
+      }
+    } catch (error: any) {
+      this.errorMessage = error.message || 'An unexpected error occurred.';
+    }
   }
 
-  handleGitHubSignIn(): void {
-    // I will add the real GitHub sign-in logic here in the next step.
-    console.log('GitHub Sign In clicked!');
+  // This is the updated GitHub sign-in logic.
+  async handleGitHubSignIn(): Promise<void> {
+    this.errorMessage = '';
+    try {
+      // I'm calling the Supabase client to start the GitHub OAuth flow.
+      const { error } = await this.supabase.client.auth.signInWithOAuth({
+        provider: 'github',
+      });
+
+      if (error) {
+        this.errorMessage = error.message;
+      }
+    } catch (error: any) {
+      this.errorMessage = error.message || 'An unexpected error occurred.';
+    }
   }
 }
