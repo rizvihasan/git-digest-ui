@@ -43,4 +43,4 @@ Thumbs.db
 
 
 # Local Environment
-/src/environments/environment.template.ts
+/src/environments/environment.ts
