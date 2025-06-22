@@ -7,3 +7,4 @@
 # Ignore IDE-specific folders
 .vscode/
 
+.vercel

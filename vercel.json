@@ -1,0 +1,7 @@
+{
+  "buildCommand": "ng build",
+  "devCommand": "cd client && npx ng serve --port $PORT",
+  "framework": "angular",
+  "outputDirectory": "dist/client/browser",
+  "rootDirectory": "client"
+} 
