@@ -4,16 +4,20 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  // I'm injecting my services here in the modern functional way.
+// The guard is now an async function, which allows us to use 'await'.
+export const authGuard: CanActivateFn = async (route, state) => {
   const supabase = inject(SupabaseService);
   const router = inject(Router);
 
-  // I'm using the isLoggedIn signal we created in the service.
-  if (supabase.isLoggedIn()) {
-    return true; // If the user is logged in, allow them to access the route.
+  // We will no longer use the signal here. We need the real-time, awaited value.
+  // We directly ask the Supabase client for the current session state.
+  const { data } = await supabase.client.auth.getSession();
+
+  if (data.session) {
+    // If getSession() returns a valid session, the user is logged in.
+    return true;
   } else {
-    // If not logged in, redirect them to the home (login) page.
+    // If there is no session, we redirect to the login page.
     return router.parseUrl('/');
   }
 };
