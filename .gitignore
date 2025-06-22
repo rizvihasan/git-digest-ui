@@ -4,6 +4,9 @@
 # Ignore API dependencies
 /api/node_modules
 
+# Ignore Angular's local environment file
+/client/src/app/environments/environment.ts
+
 # Ignore IDE-specific folders
 .vscode/
 
