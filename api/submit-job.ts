@@ -63,8 +63,7 @@ export default async function handler(
       ref,
       inputs: {
         repo_url: repoUrl,
-        // I'm passing new job ID to the action
-        job_id: newJob.id 
+        job_id: newJob.id.toString(),
       },
     });
 
