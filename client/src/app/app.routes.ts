@@ -1,13 +1,25 @@
 // src/app/app.routes.ts
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, Routes } from '@angular/router';
 import { AuthComponent } from './pages/auth/auth';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
+import { SupabaseService } from './core/supabase';
 
 export const routes: Routes = [
-  // When a user visits the main page, show them the AuthComponent
-  { path: '', component: AuthComponent },
-
-  // 2. This was the missing route for our dashboard page
+  {
+    path: '',
+    canActivate: [
+      () => {
+        const supabase = inject(SupabaseService);
+        const router = inject(Router);
+        if (supabase.isLoggedIn()) {
+          return router.parseUrl('/dashboard');
+        }
+        return true;
+      }
+    ],
+    component: AuthComponent
+  },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
 ];
