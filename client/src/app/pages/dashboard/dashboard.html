@@ -1,1 +1,13 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+    <h3>Submit a Repository for Analysis</h3>
+    <p>Enter the full URL of a public GitHub repository.</p>
+  
+    <form [formGroup]="repoForm" (ngSubmit)="handleSubmit()">
+      <input type="url" formControlName="repoUrl" placeholder="https://github.com/owner/repository-name">
+      <button type="submit" [disabled]="repoForm.invalid">Process</button>
+    </form>
+  
+    <div class="job-status">
+      <p *ngIf="submissionMessage">{{ submissionMessage }}</p>
+    </div>
+  </div>
