@@ -2,22 +2,22 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ApiService } from '../../core/api'; // 1. Import our new ApiService
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], // We need ReactiveFormsModule for our form
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class Dashboard {
+export class DashboardComponent {
   private formBuilder = inject(FormBuilder);
+  private apiService = inject(ApiService); // 2. Inject the ApiService
 
   submissionMessage = '';
 
-  // I'm defining the form for the repository URL input.
   repoForm = this.formBuilder.group({
-    // The URL is required and must follow a specific pattern.
     repoUrl: ['', [
       Validators.required, 
       Validators.pattern('^https:\/\/github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-._]+$')
@@ -25,14 +25,23 @@ export class Dashboard {
   });
 
   handleSubmit(): void {
-    if (this.repoForm.invalid) {
-      return;
-    }
+    if (this.repoForm.invalid) return;
 
-    const url = this.repoForm.value.repoUrl;
+    const url = this.repoForm.value.repoUrl as string;
     this.submissionMessage = `Submitting repository: ${url}...`;
 
-    // TODO: In the next step, I will call our API service from here.
-    console.log('Form submitted with URL:', url);
+    // 3. I'm now calling the service and subscribing to the result.
+    this.apiService.submitJob(url).subscribe({
+      next: (response) => {
+        // This runs if the API call is successful
+        this.submissionMessage = `Success! Your job has been submitted.`;
+        console.log('API Response:', response);
+      },
+      error: (error) => {
+        // This runs if the API call fails
+        this.submissionMessage = `Error: ${error.error?.message || 'Failed to submit job.'}`;
+        console.error('API Error:', error);
+      }
+    });
   }
 }

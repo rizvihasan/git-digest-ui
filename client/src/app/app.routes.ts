@@ -1,7 +1,7 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { AuthComponent } from './pages/auth/auth';
-import { Dashboard } from './pages/dashboard/dashboard';
+import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
 
 export const routes: Routes = [
@@ -9,5 +9,5 @@ export const routes: Routes = [
   { path: '', component: AuthComponent },
 
   // 2. This was the missing route for our dashboard page
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
 ];
