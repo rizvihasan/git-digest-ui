@@ -1,6 +1,7 @@
 // src/app/pages/auth/auth.ts
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SupabaseService } from '../../core/supabase';
 
@@ -14,6 +15,8 @@ import { SupabaseService } from '../../core/supabase';
 export class AuthComponent {
   private formBuilder = inject(FormBuilder);
   private supabase = inject(SupabaseService);
+  // We are not using the router directly here anymore, so we can remove it.
+  // private router = inject(Router);
 
   errorMessage = '';
 
@@ -22,7 +25,6 @@ export class AuthComponent {
     password: ['', [Validators.required]],
   });
 
-  // The new, dedicated Sign Up method
   async handleSignUp(): Promise<void> {
     if (this.signInForm.invalid) return;
     this.errorMessage = '';
@@ -30,7 +32,6 @@ export class AuthComponent {
       const email = this.signInForm.value.email as string;
       const password = this.signInForm.value.password as string;
 
-      // Using the EXPLICIT signUp method now
       const { data, error } = await this.supabase.client.auth.signUp({
         email,
         password,
@@ -39,7 +40,6 @@ export class AuthComponent {
       if (error) {
         this.errorMessage = error.message;
       } else {
-        // A different success message for sign-up
         this.errorMessage = 'Success! Please check your email for a confirmation link.';
       }
     } catch (error: any) {
@@ -47,7 +47,6 @@ export class AuthComponent {
     }
   }
 
-  // This is the existing Sign In method, which we know works
   async handleSignIn(): Promise<void> {
     if (this.signInForm.invalid) return;
     this.errorMessage = '';
@@ -63,16 +62,25 @@ export class AuthComponent {
       if (error) {
         this.errorMessage = error.message;
       }
-      // The success alert and navigation are now gone from here.
-      // The onAuthStateChange listener in our service will handle it.
-
+      // The navigation is now handled by the SupabaseService listener.
     } catch (error: any) {
-      this.errorMessage = error.message || 'An unexpected error occurred.';
+      this.errorMessage = error.message || 'An unexpected error occurred during sign-in.';
     }
   }
 
-  // This method remains the same
   async handleGitHubSignIn(): Promise<void> {
-    // ...
+    this.errorMessage = '';
+    try {
+      // This is the correct, complete code for the GitHub sign-in.
+      const { error } = await this.supabase.client.auth.signInWithOAuth({
+        provider: 'github',
+      });
+
+      if (error) {
+        this.errorMessage = error.message;
+      }
+    } catch (error: any) {
+      this.errorMessage = error.message || 'An unexpected error occurred.';
+    }
   }
 }
